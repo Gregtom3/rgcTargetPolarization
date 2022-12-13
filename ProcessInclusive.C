@@ -1,11 +1,13 @@
-int ProcessInclusive(const char * input_hipo = "/volatile/clas12/rg-c/production/ana_data/TBT/8.3.4/dst/train/sidisdvcs/sidisdvcs_16500.hipo",
+int ProcessInclusive(const char * input_hipo = "/volatile/clas12/rg-c/production/ana_data/TBT/8.3.4/dst/train/sidisdvcs/sidisdvcs_016500.hipo",
 		 const char * outdir = "./data/8.3.4/",
 		 int run = 16500,
-		 Double_t beamE = 10.5,
+		 Double_t beamE = 10547.300,
          Int_t hwp = 1,
          Double_t rcdb_tpol = 0.5,
          TString target = "ND3" ){
-
+  // Correct for beamE being in MeV
+  beamE = beamE / 1000.0;
+    
   // Create Output TFile with TTree
   TFile *file = new TFile(Form("%s/sidisdvcs_%d.root",outdir,run),"RECREATE");
   TTree *tree = new TTree("events","events");
@@ -79,7 +81,6 @@ int ProcessInclusive(const char * input_hipo = "/volatile/clas12/rg-c/production
   //loop over all events in the file
   
   while(chain.Next()==true){
-    
     Nloops++;
        
     if(c12->getDetParticles().empty())
@@ -121,6 +122,64 @@ int ProcessInclusive(const char * input_hipo = "/volatile/clas12/rg-c/production
       tree->Fill();
     }    
   }  
+
+  // Parse through HEL::scaler
+  Double_t fcup = 0.0;
+  Double_t fcup_pos = 0.0;
+  Double_t fcup_neg = 0.0;
+  Double_t fcup_zero = 0.0;
+  Double_t fcup_bad = 0.0;
+  hel = -999;
+
+  std::string filename = "";
+  std::string filesuffix = "";
+
+  hipo::reader     reader_;
+  hipo::event      event_;
+  hipo::dictionary  factory_;
+  
+  reader_.setTags(1);
+  reader_.open(input_hipo); //keep a pointer to the reader
+  reader_.readDictionary(factory_);
+  hipo::bank HEL(factory_.getSchema("HEL::scaler"));
+  while(reader_.next()){
+    reader_.read(event_);
+    event_.getStructure(HEL);
+
+    hel = HEL.getInt("helicity",0);
+    fcup = HEL.getFloat("fcupgated",0);
+      
+    
+    if(HEL.getRows()==0){
+      fcup_bad+=fcup;
+    }
+    else if(hel==1)
+      fcup_pos+=fcup;
+    else if(hel==0)
+      fcup_zero+=fcup;
+    else if(hel==-1)
+      fcup_neg+=fcup;
+    else
+      cout << "ERROR" << endl;
+  }
+
+  TVectorD vfcup_pos(1);
+  vfcup_pos[0] = fcup_pos;
+  file->WriteObject(&vfcup_pos, "fcup_pos");
+  
+  TVectorD vfcup_neg(1);
+  vfcup_neg[0] = fcup_neg;
+  file->WriteObject(&vfcup_neg, "fcup_neg");
+  
+  TVectorD vfcup_zero(1);
+  vfcup_zero[0] = fcup_zero;
+  file->WriteObject(&vfcup_zero, "fcup_zero");
+  
+  TVectorD vfcup_bad(1);
+  vfcup_bad[0] = fcup_bad;
+  file->WriteObject(&vfcup_bad, "fcup_bad");
+
+  file->Close();
   return 0;
   
 }

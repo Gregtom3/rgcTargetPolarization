@@ -1,10 +1,11 @@
 int ProcessInclusive(const char * input_hipo = "/volatile/clas12/rg-c/production/ana_data/TBT/8.3.4/dst/train/sidisdvcs/sidisdvcs_016500.hipo",
-		 const char * outdir = "./data/8.3.4/",
-		 int run = 16500,
-		 Double_t beamE = 10547.300,
-         Int_t hwp = 1,
-         Double_t rcdb_tpol = 0.5,
-         TString target = "ND3" ){
+		     const char * outdir = "./data/8.3.4/",
+		     int run = 16500,
+		     Double_t beamE = 10547.300,
+		     Int_t hwp = 1,
+		     Double_t rcdb_tpol = 0.5,
+		     TString target = "ND3" ,
+		     TString cookType = "TBT"){
   // Correct for beamE being in MeV
   beamE = beamE / 1000.0;
     
@@ -41,7 +42,8 @@ int ProcessInclusive(const char * input_hipo = "/volatile/clas12/rg-c/production
   file->WriteObject(&vhwp, "hwp");
   file->WriteObject(&vrcdb_tpol, "rcdb_tpol");
   file->WriteObject(&target, "target");
-    
+  file->WriteObject(&cookType, "cookType");
+
   // Feed hipo file to chain
   HipoChain chain;
   chain.Add(input_hipo);

@@ -210,7 +210,7 @@ EOF
 source /group/clas12/packages/setup.csh
 module load clas12/pro
 cd $pathtorepo/
-clas12root -b -q ${pathtorepo}/ProcessInclusive.C\(\"$hipo\",\"$datadir\",$run,$beamE,$hwp,$tpol,\"$targ\"\)
+clas12root -b -q ${pathtorepo}/ProcessInclusive.C\(\"$hipo\",\"$datadir\",$run,$beamE,$hwp,$tpol,\"$targ\",\"$cookType\"\)
 echo "Done"
 EOF
 

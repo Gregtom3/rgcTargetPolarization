@@ -1,10 +1,27 @@
 #!/bin/bash
-#################################################################################
-
-pathtorepo="/work/clas12/users/gmat/rgcTargetPolarization"
 USERNAME="$USER"
 
+
 #################################################################################
+# EDIT HERE
+#################################################################################
+#
+#
+# Path to this repository
+pathtorepo=/work/clas12/users/$USERNAME/rgcTargetPolarization
+#
+# Location for output log files, shell scripts, etc.
+farmoutdir=/farm_out/$USERNAME/clas12analysis.sidis.data/rgc/tpol
+#
+# Location for output ROOT TTrees, TFiles
+datadir=/volatile/clas12/users/$USERNAME/clas12analysis.sidis.data/rgc/tpol/data/$version
+#
+#
+#################################################################################
+# EDIT HERE
+#################################################################################
+
+
 hl="---------------------------------------------------------------"
 if [ $# -lt 1 ]; then
   echo """
@@ -53,7 +70,7 @@ done
 logdir=""
 slurmdir=""
 NOW=$( date '+%F_%H_%M' )
-NOWdir=/farm_out/gmat/clas12analysis.sidis.data/rgc/tpol/$NOW
+NOWdir=$farmoutdir/$NOW
 if [ -d "${NOWdir}/" ]; then
     rm -r ${NOWdir}
 fi
@@ -80,7 +97,6 @@ fi
 
 ##################################################################################################
 PWD=$pwd
-datadir=/volatile/clas12/users/gmat/clas12analysis.sidis.data/rgc/tpol/data/$version
 
 existing_runs=()
 if [ ! -z ${booleans["o"]} ] && [ ! -z ${booleans["a"]} ]; then

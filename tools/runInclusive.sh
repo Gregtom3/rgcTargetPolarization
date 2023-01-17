@@ -11,7 +11,7 @@ if [ $# -lt 1 ]; then
   USAGE: $0 [version] [flags(optional)]
   Automates the sending of slurm analysis jobs for RGC 
   Each job executes the ProcessInclusive.C macro in the previous directory
-   - [version]: [8.3.2 or 8.3.4]
+   - [version]: [8.3.2 or 8.3.4 or 8.4.0 or 8c.4.0] 
    - [flags]:
               -a      (append to existing data directory (./data/<version>/)
               -o      (overwrite existing data directory (./data/<version>/))
@@ -19,7 +19,7 @@ if [ $# -lt 1 ]; then
   exit 2
 fi
 
-VERSIONS="8.3.2 8.3.4"
+VERSIONS="8.3.2 8.3.4 8.4.0 8c.4.0"
 nCPUs=4
 memPerCPU=4000
 

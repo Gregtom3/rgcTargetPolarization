@@ -1,14 +1,14 @@
-int ProcessInclusive(const char * input_hipo = "/volatile/clas12/rg-c/production/ana_data/TBT/8.3.4/dst/train/sidisdvcs/sidisdvcs_016500.hipo",
-		     const char * outdir = "./data/8.3.4/",
-		     int run = 16500,
+int ProcessInclusive(const char * input_hipo = "/volatile/clas12/rg-c/production/dst/8.7.0_TBT/dst/train/sidisdvcs/sidisdvcs_016325.hipo",
+		     const char * outdir = "./data/8.5.0/",
+		     int run = 16325,
 		     Double_t beamE = 10547.300,
-		     Int_t hwp = 1,
+		     Int_t hwp = 0,
 		     Double_t rcdb_tpol = 0.5,
-		     TString target = "ND3" ,
+		     TString target = "NH3" ,
 		     TString cookType = "TBT"){
   // Correct for beamE being in MeV
   beamE = beamE / 1000.0;
-    
+  
   // Create Output TFile with TTree
   TFile *file = new TFile(Form("%s/sidisdvcs_%d.root",outdir,run),"RECREATE");
   TTree *tree = new TTree("events","events");
@@ -84,14 +84,16 @@ int ProcessInclusive(const char * input_hipo = "/volatile/clas12/rg-c/production
   
   while(chain.Next()==true){
     Nloops++;
-       
+
     if(c12->getDetParticles().empty())
       {
 	Nempty++;
 	continue;
       }
 
-    hel = c12->getBank(idx_HELOnline)->getInt(iHelicity,0);
+    //hel = c12->getBank(idx_HELOnline)->getInt(iHelicity,0);
+    auto event = c12->event();
+    hel   = event->getHelicity();
     
     if(hel==0){
       Nzero++;
@@ -102,8 +104,12 @@ int ProcessInclusive(const char * input_hipo = "/volatile/clas12/rg-c/production
     for(unsigned int idx = 0 ; idx < parts.size(); idx++){
       auto particle = parts.at(idx);
       int pid = particle->getPid();
+      int status = particle->getStatus();
       if(pid!=11) // Only analyze the electrons
 	continue;
+      if(status>0) // Only analyze scattered electron
+	continue;
+
       P = particle->getP();
       double M = particle->getPdgMass();
       E = sqrt(P*P+M*M);
@@ -120,11 +126,15 @@ int ProcessInclusive(const char * input_hipo = "/volatile/clas12/rg-c/production
       y  = (vec_target*vec_q)/(vec_target*vec_eIn);
       x  = Q2/((vec_target+vec_eIn).M2()*y);
       W  = (vec_eIn+vec_target-vec_eOut).M();
-        
+      if(E<2.6) continue; // Ecut
+      if(Th<5*3.1415/180 || Th>35*3.1415/180) continue; // Theta cut
+      if(abs(Vz+4.5)>4) continue; // vz cut
+      if(W<2) continue; // W cut
       tree->Fill();
+
     }    
   }  
-
+  cout << "DONE" << endl;
   // Parse through HEL::scaler
   Double_t fcup = 0.0;
   Double_t fcup_pos = 0.0;
@@ -148,23 +158,23 @@ int ProcessInclusive(const char * input_hipo = "/volatile/clas12/rg-c/production
     reader_.read(event_);
     event_.getStructure(HEL);
 
-    hel = HEL.getInt("helicity",0);
-    fcup = HEL.getFloat("fcupgated",0);
-      
-    
-    if(HEL.getRows()==0){
-      fcup_bad+=fcup;
+    for(int row=0; row<HEL.getRows(); row++){
+      hel = HEL.getInt("helicity",row); 
+      fcup = HEL.getFloat("fcupgated",row);
+      if(hel==1)
+	fcup_pos+=fcup;
+      else if(hel==0)
+	fcup_zero+=fcup;
+      else if(hel==-1)
+	fcup_neg+=fcup;
+      else
+	cout << "ERROR" << endl;
     }
-    else if(hel==1)
-      fcup_pos+=fcup;
-    else if(hel==0)
-      fcup_zero+=fcup;
-    else if(hel==-1)
-      fcup_neg+=fcup;
-    else
-      cout << "ERROR" << endl;
+    if(HEL.getRows()==0){
+      fcup_bad+=HEL.getFloat("fcupgated",0);
+    }
   }
-
+  
   TVectorD vfcup_pos(1);
   vfcup_pos[0] = fcup_pos;
   file->WriteObject(&vfcup_pos, "fcup_pos");
@@ -180,7 +190,7 @@ int ProcessInclusive(const char * input_hipo = "/volatile/clas12/rg-c/production
   TVectorD vfcup_bad(1);
   vfcup_bad[0] = fcup_bad;
   file->WriteObject(&vfcup_bad, "fcup_bad");
-
+  tree->Write();
   file->Close();
   return 0;
   

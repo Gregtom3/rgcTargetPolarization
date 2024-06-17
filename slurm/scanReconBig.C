@@ -1,16 +1,16 @@
 // scanRecon
 // Purpose: Parse through HEL::scaler and RUN::scaler for each run and save information to csv's
 // To execute properly, simply perform ./run.sh
-
-int scanReconBig(int run = 16904,
+#include <filesystem>
+namespace fs = std::filesystem;
+int scanReconBig(int run = 16137,
 		 std::string prefix = "/farm_out/gmat/rgc-scaler-run",
-		 std::string cook="TBT"){
+		 std::string header="/cache/clas12/rg-c/production/summer22/pass1/10.5gev/NH3/dst"){
   // Verbosity
   int verbosity = 0;
   
   // Filenames
-  //std::string fileprefix_recon = Form("/volatile/clas12/rg-c/production/dst/%s/dst/recon/0%d/rec_clas_0%d.evio.",cook.c_str(),run,run);
-  std::string fileprefix_recon = Form("/volatile/clas12/rg-c/production/ana_data/TBT/%s/dst/recon/0%d/rec_clas_0%d.evio.",cook.c_str(),run,run);
+  std::string fileprefix_recon = Form("%s/recon/0%d/",header.c_str(),run);
   std::string outHELScaler = Form("%s-%d-HELScaler-all.csv",prefix.c_str(),run);
   std::string outRUNScaler = Form("%s-%d-RUNScaler-all.csv",prefix.c_str(),run);
   
@@ -34,16 +34,11 @@ int scanReconBig(int run = 16904,
 
   // RAW::Scaler bank info
   clas12databases::SetCCDBRemoteConnection();
-  //clas12reader c12(Form("/volatile/clas12/rg-c/production/dst/%s/dst/recon/0%d/rec_clas_0%d.evio.00000.hipo",cook.c_str(),run,run),{0});
-  clas12reader c12(Form("/volatile/clas12/rg-c/production/ana_data/TBT/%s/dst/recon/0%d/rec_clas_0%d.evio.00000.hipo",cook.c_str(),run,run),{0});
-  clas12databases db;
-  c12.connectDataBases(&db);
-  double offset = c12.ccdb()->requestTableValueFor(0,"offset","/runcontrol/fcup");
-  double slope = c12.ccdb()->requestTableValueFor(0,"slope","/runcontrol/fcup");
-  double atten = c12.ccdb()->requestTableValueFor(0,"atten","/runcontrol/fcup");
-  //  double offset = 140.0;
-  // double slope = 906.2;
-  //  double atten = 1.0;
+
+  double offset = 0.0;
+  double slope  = 0.0;
+  double atten  = 0.0;
+
   long RAW_fcupgated_33ms = 0.0;
   long RAW_fcupgated_500us = 0.0;
   long RAW_clockgated_33ms = 0.0;
@@ -67,7 +62,6 @@ int scanReconBig(int run = 16904,
   outFile_RUN << "run,fileidx,entry,fcupgated,fcup,livetime\n";
 
 
-  int leadingZeros;
 
   std::string filename = "";
   std::string filesuffix = "";
@@ -75,12 +69,12 @@ int scanReconBig(int run = 16904,
   hipo::reader     reader_;
   hipo::event      event_;
   hipo::dictionary  factory_;
-
-  for(int idx_file = 0 ; idx_file < 9999 ; idx_file ++){
-    cout << "Run " << run << "| File " << idx_file << endl;
-    filesuffix = std::to_string(idx_file);
-    leadingZeros = maxZeros - std::min(maxZeros,filesuffix.size());
-    filename = Form("%s%s.hipo",fileprefix_recon.c_str(), std::string(leadingZeros,'0').append(filesuffix).c_str()   );
+  int idx_file = 0;
+    
+  for (const auto& entry : fs::directory_iterator(fileprefix_recon.c_str())) {
+    cout << "Run " << run << "| File Number " << idx_file++ << endl;
+    if (!entry.is_regular_file()) continue;
+    filename = entry.path().string();
     
     if(filename.empty() || gSystem->AccessPathName(filename.c_str()))
       {
@@ -94,6 +88,16 @@ int scanReconBig(int run = 16904,
 	}
       }
 
+      
+    if (idx_file==1){
+        clas12reader c12(filename,{0});
+        clas12databases db;
+        c12.connectDataBases(&db);
+        
+        offset = c12.ccdb()->requestTableValueFor(0,"offset","/runcontrol/fcup");
+        slope = c12.ccdb()->requestTableValueFor(0,"slope","/runcontrol/fcup");
+        atten = c12.ccdb()->requestTableValueFor(0,"atten","/runcontrol/fcup");
+    }
     reader_.setTags(1);
     reader_.open(filename.data()); //keep a pointer to the reader
     reader_.readDictionary(factory_);

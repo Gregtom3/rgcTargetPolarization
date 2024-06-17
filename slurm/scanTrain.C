@@ -1,16 +1,17 @@
 // scanTrain
 // Purpose: Parse through HEL::scaler for each run and save information to csv's
 // To execute properly, simply perform ./run.sh
+#include <filesystem>
+namespace fs = std::filesystem;
 
-int scanTrain(int run = 16770,
+int scanTrain(int run = 16137,
 	      std::string prefix = "/farm_out/gmat/rgc-scaler-run",
-	      std::string cook="TBT/8.3.2"){
+	      std::string header="/cache/clas12/rg-c/production/summer22/pass1/10.5gev/NH3/dst"){
   // Verbosity
   int verbosity = 0;
   
   // Filenames
-  //std::string file = Form("/volatile/clas12/rg-c/production/dst/%s/dst/train/sidisdvcs/sidisdvcs_0%d.hipo",cook.c_str(),run);
-  std::string file = Form("/volatile/clas12/rg-c/production/ana_data/TBT/%s/dst/train/sidisdvcs/sidisdvcs_0%d.hipo",cook.c_str(),run);
+  std::string file = Form("%s/train/sidisdvcs/sidisdvcs_0%d.hipo",header.c_str(),run);
   std::string outHELScaler = Form("%s-%d-HELScaler-train.csv",prefix.c_str(),run);
 
   // HEL::Scaler bank info

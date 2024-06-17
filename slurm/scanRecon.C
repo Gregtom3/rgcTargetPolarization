@@ -1,19 +1,20 @@
 // scanRecon
 // Purpose: Parse through HEL::scaler and RUN::scaler for each run and save information to csv's
 // To execute properly, simply perform ./run.sh
+#include <filesystem>
+namespace fs = std::filesystem;
 
-int scanRecon(int run = 16767,
+int scanRecon(int run = 16137,
 	      std::string prefix = "/farm_out/gmat/rgc-scaler-run",
-	      std::string cook="HBT"){
+	      std::string header="/cache/clas12/rg-c/production/summer22/pass1/10.5gev/NH3/dst"){
   // Verbosity
   int verbosity = 0;
   
   // Filenames
-  //std::string fileprefix_recon = Form("/volatile/clas12/rg-c/production/dst/%s/dst/recon/0%d/rec_clas_0%d.evio.",cook.c_str(),run,run);
-  std::string fileprefix_recon = Form("/volatile/clas12/rg-c/production/ana_data/TBT/%s/dst/recon/0%d/rec_clas_0%d.evio.",cook.c_str(),run,run);
+  std::string fileprefix_recon = Form("%s/recon/0%d/",header.c_str(),run);
   std::string outHELScaler = Form("%s-%d-HELScaler.csv",prefix.c_str(),run);
   std::string outRUNScaler = Form("%s-%d-RUNScaler.csv",prefix.c_str(),run);
-
+   
   // 5 number 
   size_t maxZeros = 5;
 
@@ -46,7 +47,6 @@ int scanRecon(int run = 16767,
   ofstream outFile_HEL(outHELScaler,fstream::trunc);
   ofstream outFile_RUN(outRUNScaler,fstream::trunc);
 
-  int leadingZeros;
 
   std::string filename = "";
   std::string filesuffix = "";
@@ -59,12 +59,11 @@ int scanRecon(int run = 16767,
   
   outFile_RUN << "run , idx_file , entry_idx , RUN_fcupgated_min , RUN_fcupgated_max , RUN_fcupgated_diff , RUN_tot_livetime , RUN_tot_livetime_per_entry_idx , RUN_fcup_min , RUN_fcup_max , RUN_fcup_diff , RUN_calc_fcupgated \n";
 
-
-  for(int idx_file = 0 ; idx_file < 9999 ; idx_file ++){
-    cout << "Run " << run << "| File " << idx_file << endl;
-    filesuffix = std::to_string(idx_file);
-    leadingZeros = maxZeros - std::min(maxZeros,filesuffix.size());
-    filename = Form("%s%s.hipo",fileprefix_recon.c_str(), std::string(leadingZeros,'0').append(filesuffix).c_str()   );
+  int idx_file = 0;
+  for (const auto& entry : fs::directory_iterator(fileprefix_recon.c_str())) {
+    cout << "Run " << run << "| File Number " << idx_file++ << endl;
+    if (!entry.is_regular_file()) continue;
+    filename = entry.path().string();
     
     if(filename.empty() || gSystem->AccessPathName(filename.c_str()))
       {

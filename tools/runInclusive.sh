@@ -164,8 +164,8 @@ elif [[ $version == "8.7.0_TBT" ]] || [[ $version == *"10.0.2_TBT"* ]]; then
     trainhipodir=("/volatile/clas12/rg-c/production/dst/$version/dst/train/sidisdvcs/*.hipo")
     reconhipodir=("/volatile/clas12/rg-c/production/dst/$version/dst/recon/*.hipo")
 elif [[ $version == "pass1" ]]; then
-    trainhipodir=("/cache/clas12/rg-c/production/summer22/pass1/10.5gev/NH3/dst/train/sidisdvcs/*.hipo" "/cache/clas12/rg-c/production/summer22/pass1/10.5gev/ND3/dst/train/sidisdvcs/*.hipo" "/cache/clas12/rg-c/production/summer22/pass1/10.5gev/C/dst/train/sidisdvcs/*.hipo")
-    reconhipodir=("/cache/clas12/rg-c/production/summer22/pass1/10.5gev/NH3/dst/recon/*.hipo" "/cache/clas12/rg-c/production/summer22/pass1/10.5gev/ND3/dst/recon/*.hipo" "/cache/clas12/rg-c/production/summer22/pass1/10.5gev/C/dst/recon/*.hipo")
+    trainhipodir=("/cache/clas12/rg-c/production/summer22/pass1/10.5gev/NH3/dst/train/sidisdvcs/*.hipo" "/cache/clas12/rg-c/production/summer22/pass1/10.5gev/ND3/dst/train/sidisdvcs/*.hipo" "/cache/clas12/rg-c/production/summer22/pass1/10.5gev/C/dst/train/sidisdvcs/*.hipo" "/cache/clas12/rg-c/production/summer22/pass1/10.5gev/CH2/dst/train/sidisdvcs/*.hipo" "/cache/clas12/rg-c/production/summer22/pass1/10.5gev/ET/dst/train/sidisdvcs/*.hipo")
+    reconhipodir=("/cache/clas12/rg-c/production/summer22/pass1/10.5gev/NH3/dst/recon/*.hipo" "/cache/clas12/rg-c/production/summer22/pass1/10.5gev/ND3/dst/recon/*.hipo" "/cache/clas12/rg-c/production/summer22/pass1/10.5gev/C/dst/recon/*.hipo" "/cache/clas12/rg-c/production/summer22/pass1/10.5gev/CH2/dst/recon/*.hipo" "/cache/clas12/rg-c/production/summer22/pass1/10.5gev/ET/dst/recon/*.hipo")
 else
     trainhipodir=("/volatile/clas12/rg-c/production/ana_data/*/$version/dst/train/sidisdvcs/*.hipo")
     reconhipodir=("/volatile/clas12/rg-c/production/ana_data/*/$version/dst/recon/*.hipo")

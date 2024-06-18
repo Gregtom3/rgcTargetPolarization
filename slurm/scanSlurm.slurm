@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=clas12
 #SBATCH --partition=production
-#SBATCH --mem-per-cpu=400
+#SBATCH --mem-per-cpu=800
 #SBATCH --job-name=rgc-scaler
 #SBATCH --cpus-per-task=1
 #SBATCH --output=/farm_out/gmat/rgc-scaler-%j.out

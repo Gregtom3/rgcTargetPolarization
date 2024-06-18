@@ -5,6 +5,8 @@ sidisdvcs=(
     "/cache/clas12/rg-c/production/summer22/$VERSION/10.5gev/NH3/dst/train/sidisdvcs/*"
     "/cache/clas12/rg-c/production/summer22/$VERSION/10.5gev/ND3/dst/train/sidisdvcs/*"
     "/cache/clas12/rg-c/production/summer22/$VERSION/10.5gev/C/dst/train/sidisdvcs/*"
+    "/cache/clas12/rg-c/production/summer22/$VERSION/10.5gev/CH2/dst/train/sidisdvcs/*"
+    "/cache/clas12/rg-c/production/summer22/$VERSION/10.5gev/ET/dst/train/sidisdvcs/*"
 )
 tmp_prefix=/work/clas12/users/gmat/tmp/rgc-scaler-run
 destination=/volatile/clas12/users/gmat/clas12analysis.sidis.data/rgc-scaler${VERSION}
